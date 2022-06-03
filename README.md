@@ -1064,7 +1064,534 @@ Consider:
 
 ```
 var students = [
-    {id:14, name: }
+    {id:14, name: "kyle" },
+    {id:15, name: "bob" },
+    {id:16, name: "sue" },
     
 ]
+
+function getFirstStudent(){
+    return function firstStudent(){
+        return students[0].name;
+    }
+}
+var firstStudent = getFirstStudent();
+student(); // "kyle"
 ```
+
+the inner firstStudent() function is a closure, but it's not a closure of the firstStudent function. It's a closure of the students array.
+
+All function invocations can access globals variables, regardless of whether closure is supported by the language or not.
+
+```
+function lookupStudent (studentID){
+    return function nobody(){
+        var msg = "Nobody's here yet";
+        console.log(msg);
+    }
+}
+```
+the inner function nobody() is a closure, but it's not a closure of the lookupStudent function. It's a closure of the msg variable.
+
+if there's no function invocation, closure can't be observed.
+
+```
+function greetStudent(studentName){
+    return function greeting(){
+        console.log(`Hello ${studentName}`);
+    }a
+}
+
+greeting("John"); // nothing else happens
+```
+
+this one's trick,m because the outer function is invoked, but the inner function is not invoked.
+
+## Observable Definition
+We're now ready to define closure:
+> A closure is observed when a function uses variables from outside its own scope, even if those variables are not accessible from the function.
+
+the key parts of this definition are:
+
+- Must be a function involved.
+- Must reference at least one variable from outside its own scope.
+- Must be invoked in a different branch onf the scope chain from the variable.
+
+this observation-oriented definition means we shouldn't dismiss closure as some indirect, academic trivia. Instead we should consider it as a useful, concrete effects closure has on our program behavior.
+
+## Closure lifecycle and Garbage Collection (GC)
+Since closure is inherently tied to a function instance, its closure over a variable lasts as log as there is still a references to the function instance.
+
+this is an important impact on building efficient and performant programs. Closure can unexpectedly prevent de GC of variables that you don't need anymore.
+    
+```
+function manageBtnClickEvents(btn){
+    var clickHandlers = []
+
+    return function listener(cb){
+        if(cb){
+            let clickHandler = 
+            function onClick(evt){
+                console.log("clicked!");
+                cb(evt);
+            }
+            clickHandlers.push(clickHandler);
+            btn.addEventListener("click", clickHandler);
+        }
+        else{
+            for(let handler of clickHandlers){
+                btn.removeEventListener("click", handler);
+            }
+            clickHandlers = [];
+        }
+    }
+}
+
+var onSubmit = manageBtnClickEvents(mySubmitBtn);
+
+onSubmit(function checkout(evt){
+    // do something
+})
+
+onSubmit(function trackAction(evt){
+    // do something
+})
+
+// later unsubscribe all handlers:
+
+onSubmit();
+
+```
+
+in this program the inner onClick() function is a closure, but it's not a closure of the onSubmit function. That means the checkout() expression references are held via closure for as long as these event handlers are subscribe
+
+## Per Variable or Per Scope?
+
+Another question we need to tackle: should we think of closure as applied only to the referenced outer variables, or to the entire scope of the function?
+
+In other words, in the previous event subscription snippet, is the inner onClick() function closed over only cb, or ist it also closed over clickHandler, clickHandlers, and bt?
+
+Another program to consider:
+
+```
+function manageStudentGrades(studentRecords){
+    var grades studentRecords.map(getGrade);
+    return addGrade;
+
+
+    // ****************
+
+    function getGrade(student){
+        return student.grade;
+    }
+    function sortAndTrimGradesList(){
+        grades.sort(function desc(a, b){
+            return b - a;
+        });
+
+        grades = grades.slice(0, 10);
+    }
+
+    function addGrade(newGrade){
+        grades.push(newGrade);
+        sortAndTrimGradesList();
+        return newGrade;
+    }
+}
+var addNextGrade = manageStudentGrades([
+    {id:1, name: "John", grade: 90},
+    {id:2, name: "Sue", grade: 50},
+    {id:3, name: "Bob", grade: 70},
+    // .. many more records...
+    {id:99, name: "Kyle", grade: 99}
+    ]);
+addNextGrade(100);
+addNextGrade(98);
+```
+
+The outer function manageStudentGrades() takes a list of student records, and return an addGrade() function reference that can be invoked to add a new grade to the list.
+
+but how reliable is this observation as proof? consider this program:
+    
+```
+function storeStudentInfo(id, name, grade){
+    return function getInfo(whichValue){
+        // warning:
+        // using eval() is a bad practice
+        var val = eval(whichValue);
+        return val;
+    }
+    var info = storeStudentInfo(73, "John", 90);
+    info("name"); // "John"
+    info("grade"); // 90
+}
+```
+Notice that the inner function getInfo( .. ) is not explicitly closed over any of id, name, or grade variables. And yet, calls to info seems to still be able to access the program variables, albeit though use eval lexical scop to cheat.
+
+so all the variable were definitely preserved via closure, despite not being explicitly referenced by the inner function. 
+
+## why Closure?
+Now that we have a well-rounded sense of what closure is and how it works, let's explore some ways it can improve the code structure and organization of an example program.
+
+imagine you have a button on a page that when clicked, should retrieve and send some data via Ajax request. Without using closure you'd have to write a lot of code to manage the Ajax request, and the data retrieval.
+
+```
+var APIendpoints = {
+    studentIDs: "http://localhost:3000/students/",
+}
+var data = {
+    studentIDs: [1, 2, 3, 4, 5],
+}
+function makeRequest(evt){
+    var btn = evt.target;
+}
+
+var recordKind = btn.dataset.recordKind;
+ajax(
+    APIendpoints[recordKind],
+    data[recordKind],
+)
+
+btn.addEventListener("click", makeRequest);
+
+// <button data-kind="studentIDs">
+//   Register Students
+// </button>
+
+```
+
+The makeRequest() utility only receives an evt object from a click event. From there, it has to retrieve the data-kind attribute from the button, and then make the Ajax request.
+
+This works OK, but it's unfortunate (inefficient, mor confusing) that the event handler has to read a DOM attribute each time it's invoked. Why couldn't an event handler remember this value? let's try using closure to improve the code
+
+```
+var APIendpoint = {
+    studentIDs: "http://localhost:3000/students/",
+}
+
+var data = {
+    studentIDs: [1, 2, 3, 4, 5],
+}
+
+function setupButtonHandler(btn){
+    var recordKind = btn.dataset.recordKind;
+    btn.addEventListener("click", function makeRequest(evt){
+        ajax(
+            APIendpoint[recordKind],
+            data[recordKind],
+        )
+    })
+}
+
+// <button data-kind="studentIDs">
+//   Register Students
+// </button>
+
+setupButtonHandler(btn);
+```
+
+With the setupButtonHandler approach, the data-kind attribute is retrieved once and assigned to the record-kind variable at initial setup. Then, the makeRequest() function is invoked with the record-kind variable as an argument.
+
+building on this pattern, we could have looked up both the URL and data once, at setup:
+
+```
+function setupButtonHandler(btn){
+    var secondKink = btn.dataset.recordKind;
+    var requestURL = APIendpoint[secondKink];
+    var requestData = data[secondKink];
+
+    btn.addEventListener("click", function makeRequest(evt){
+        ajax(
+            requestURL,
+            requestData,
+        )
+    })
+}
+```
+
+Now makeRequest is closed over requestURL and requestData, which is a little bit cleaner to understand, and also slightly more efficient.
+
+Two similar techniques from the functional programing (FP) paradigm that rely on closure are partial application and currying. Briefly, partial application is a technique that allows you to partially apply a function to some of its arguments, and then invoke it with the remaining arguments. And currying is a technique that allows you to partially apply a function to some of its arguments, and then return a function that can be invoked with the remaining arguments.
+
+adapting partial application, we can further improve the preceding code:
+
+```
+function defineHandler(requestURL, requestData){
+    return function makeRequest(evt){
+        ajax(
+            requestURL,
+            requestData,
+        )
+    }
+}
+
+function setupButtonHandler(btn){
+    var recordKind = btn.dataset.recordKind;
+    var handler = defineHandler(
+        APIendpoint[recordKind],
+        data[recordKind],
+    )
+    btn.addEventListener("click", handler);
+}
+```
+
+the requestURL and requestData inputs are provided ahead of time, resulting in the makeRequest() partially applied function, which we locally label handler. When the event eventually fires, the handler function is invoked, and the ajax() function is invoked with the requestURL and requestData values.
+
+## Closer to closure
+
+As we close down a dense chapter, take some deep breaths and think about the following:
+
+- Observational: closure is a function instance remembering its outer variables even as that function is passed to and invoked in other scopes.
+- Implementational: closure is a function instance and its scopes environment preserved in-place while any references to it are passed around and invoked from other scopes
+
+Summarizing the benefits to our program:
+
+- Closure can improve efficiency by allowing a function instance to remember previously determined information instead of having to compute it each time it's invoked.
+- closure can improve code readability bounding scope exposure by encapsulating variables inside function instance while still making sure the information in those variables is accessible for future use. The resultant narrower, more specialized function instances are cleaner to interact with, since the preserved information doesn't need to be passed in every invocation
+
+# The module pattern
+In this section, we'll explore the module pattern, which is a pattern that allows us to encapsulate a set of related functions and variables into a single object.
+
+Our gaol in this final chapter is to appreciate how modules embody the importance of encapsulation, and how they can be used to improve code readability and maintainability.
+
+
+## Encapsulation and least exposure
+Encapsulation is often cited as principle of object-oriented programming. It is a way to restrict access to a set of variables and functions, and to hide implementation details from the outside world.
+
+Independent of any syntax or code mechanisms, the spirit of encapsulation can be realized in something as simple as using separate files to hold bits of the overall program with common purpose.
+
+## What is as module?
+A module is a collection of related data and functions, characterized by a division between hidden private details and public accessible details, usually called the "public API".
+
+## Namespaces (stateless grouping)
+If you group a set of related functions together, without data, then you don't really have the expected encapsulation a module implies. The better term for this grouping of stateless functions is a namespace.
+
+```
+var Utils = {
+    cancelEvt(evt){
+        evt.preventDefault();
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+    },
+    wait(ms){
+        return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    isValidEmail(email){
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    },
+}
+```
+utils is a useful collections of utilities, yet they
+re all state-independent functions. Gathering functionality together is generally good practice, but that doesn't make this a module. Rather, we've defined a Utils namespace and organized the functions under it.
+
+## Data Structures (Stateful Grouping)
+
+Even if you bundle data and stateful functions together, if you're not limiting the visibility of any of it, then you're stopping short of the POLE aspect of encapsulation; it's not particularly helpful to label that a module.
+
+Consider the following:
+
+```
+var Student = {
+    records:[
+        {
+            id: 1,
+            name: "John",
+            grade: 85,
+        },
+        {
+            id: 2,
+            name: "Jane",
+            grade: 90,
+        },
+        {
+            id: 3,
+            name: "Joe",
+            grade: 95,
+        },
+    ]
+    getName(studentID{
+        var student = this.records.find(function(student){
+            return student.id === studentID;
+        })
+        return student.name;
+    })
+}
+
+Student.getName(1);
+// "John"
+
+```
+
+Since records is publicly accessible data, not hidden behind a public API, Student here isn't really module
+
+Student does have the data-and-functionality aspect of encapsulation, but not the visibility-control aspect. it's the best to label this an instance of a data structure.
+
+## Modules (stateful Access Control)
+To embody spirit of the modules pattern, we not only need grouping and state, but also access control through visibility (private vs public).
+
+let's turn Student from the previous section into a module. We'll start with a from I call the "classic module", which was originally referred to as the "revealing module", which was originally referred to as the "revealing module" when it first emerged in the early 2000s Consider:
+
+```
+var Student = (function defineStudent(){
+    var records = [
+        {
+            id: 1,
+            name: "John",
+            grade: 85,
+        },
+        {
+            id: 2,
+            name: "Jane",
+            grade: 90,
+        },
+        {
+            id: 3,
+            name: "Joe",
+            grade: 95,
+        },
+    ]
+   var publicAPI = {
+       getName
+   };
+   return publicAPI;
+   function getName(studentID){
+       var student = records.find(function(student){
+           return student.id === studentID;
+       })
+       return student.name;
+   }
+})();
+Student.getName(1); // "John"
+```
+
+Student is now an instance of a module. It features a public API with a single method: getName This method is able to access the private hidden records data.
+
+## Module factory (multiples instances)
+But if we did want to define a module that supported multiple instances in our program, we can slightly tweak the code:
+
+```
+// factory function, not singleton IIFE
+function defineStudent(){
+    var records = [
+        {
+            id: 1,
+            name: "John",
+            grade: 85,
+        },
+        {
+            id: 2,
+            name: "Jane",
+            grade: 90,
+        },
+        {
+            id: 3,
+            name: "Joe",
+            grade: 95,
+        },
+    ]
+    var publicAPI = {
+        getName
+    };
+    return publicAPI;
+    function getName(studentID){
+        var student = records.find(function(student){
+            return student.id === studentID;
+        })
+        return student.name;
+    }
+}
+var fullTimeStudent = defineStudent();
+fullTimeStudent.getName(1); // "John"
+```
+
+Rather than specifying defineStudent() as an IIFE, we just define it as a normal standalone function, which is commonly referred to in this context as a "module factory" function.
+
+## Classic Module Definition
+So to clarify that makes something a classic module:
+
+- there must be an outer scope, typically a module factory function running at least once
+- The module's inner scope must have at least one piece of hidden information that represents state for the module.
+- the module must return on this public API a reference to at least on function tat has closure over the hidden module state.
+
+you'll likely run across other variations on this classic module approach.
+
+## Node commonjs modules
+let's tweak our module example:
+
+```
+module.exports.getName =getName;
+
+var records = [
+    {
+        id: 1,
+        name: "John",
+        grade: 85,
+    },
+    {
+        id: 2,
+        name: "Jane",
+        grade: 90,
+    },
+    {
+        id: 3,
+        name: "Joe",
+        grade: 95,
+    },
+]
+function getName(studentID){
+    var student = records.find(function(student){
+        return student.id === studentID;
+    })
+    return student.name;
+}
+```
+
+the records and getName identifiers are in the top-level scope of this module, but that's not the global scope. As such, everything here is by default privet to the module.
+
+## Modern ES Modules (ESM)
+
+The ESM format shares several similarities with the commonJS format. ESM is file-based, and module instances are singletons, with everything private by default. One notable difference is that ESM file are assumed to be strict-mode, without needing a "use strict" pragma at the top. There's no way to define an ESM as non-strict-mode.
+
+```
+export getName;
+
+var records = [
+    {
+        id: 1,
+        name: "John",
+        grade: 85,
+    },
+    {
+        id: 2,
+        name: "Jane",
+        grade: 90,
+    },
+    {
+        id: 3,
+        name: "Joe",
+        grade: 95,
+    },
+]
+function getName(studentID){
+    var student = records.find(function(student){
+        return student.id === studentID;
+    })
+    return student.name;
+}
+```
+
+the only change here is the export getName statement. as before, the records and getName identifiers are in the top-level scope of this module, but that's not the global scope. As such, everything here is by default private to the module.
+
+The import keyword-like export, it must be used only at the top level of an ESM outside of any blocks or function also has number of variations in syntax. The first referred to as "named export"
+
+```
+import {getName} from "./student";
+getName(1); // "John"
+```
+
+## exit scope 
+Wether you use the classic module format, commonJS format or ESM format, you'll likely encounter a common pattern of code that is not in a module.
+
+The module pattern is the conclusion of our journey in this book of learning how we can use the rules of lexical scope to place variables and function in proper location.
+
+and underneath modules, the magic of how all our modules state is maintained is closure leveraging the lexical scope system.

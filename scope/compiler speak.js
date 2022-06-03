@@ -13,7 +13,7 @@ function getStudentName(studentID) {
     }
 }
 
-var nextStundet = getStudentName(2);
+var nextStudent = getStudentName(2);
 
-console.log(nextStundet);
+console.log(nextStudent);
 //zoidberg
