@@ -1,0 +1,9 @@
+html, body{
+    background-color: #2c1822;
+    color: #fff;
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    padding: 1rem;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
