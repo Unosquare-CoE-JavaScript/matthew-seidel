@@ -4,8 +4,13 @@ import {
   ProductImage,
   ProductTitle,
 } from "../components";
+import { useShoppingCard } from "../hook/useShoppingCard";
+import { products } from "../data/products";
+import "../styles/custom-style.css";
 
 export const ShoppingPage = () => {
+  const [shoppingCart, onProductCountChange] = useShoppingCard();
+
   return (
     <div>
       <h1>Sopping page</h1>
@@ -17,28 +22,37 @@ export const ShoppingPage = () => {
           flexWrap: "wrap",
         }}
       >
-        <ProductCard
-          product={{
-            id: "2",
-            title: "Coffee Mug",
-            img: "./coffee-mug.png",
-          }}
-        >
-          <ProductImage />
-          <ProductTitle />
-          <ProductButtons />
-        </ProductCard>
-        <ProductCard
-          product={{
-            id: "3",
-            title: "Harry Mug",
-            // img: "./coffee-mug.png",
-          }}
-        >
-          <ProductCard.Image />
-          <ProductCard.Title />
-          <ProductCard.Buttons />
-        </ProductCard>
+        {products.map((product) => (
+          <ProductCard
+            product={product}
+            key={product.id}
+            value={shoppingCart[product.id]?.quantity || 0}
+            onChange={onProductCountChange}
+          >
+            <ProductImage />
+            <ProductTitle />
+            <ProductButtons />
+          </ProductCard>
+        ))}
+        <div className="shopping-cart">
+          {Object.entries(shoppingCart).map(([key, product]) => (
+            <ProductCard
+              key={key}
+              style={{ width: "100px" }}
+              onChange={onProductCountChange}
+              value={product.quantity}
+              product={product}
+            >
+              <ProductImage />
+              <ProductButtons
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              />
+            </ProductCard>
+          ))}
+        </div>
       </div>
     </div>
   );

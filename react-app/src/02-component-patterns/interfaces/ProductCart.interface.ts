@@ -2,9 +2,11 @@ import { CSSProperties, ReactElement } from "react";
 
 export interface ProductCartProps {
   product: Product;
-  children?: ReactElement | ReactElement [];
+  children?: ReactElement | ReactElement[];
   className?: string;
-  style?:CSSProperties
+  style?: CSSProperties;
+  onChange?: (args:onChangeArgs) => void;
+  value?: number;
 }
 
 export interface ProductContextProps {
@@ -19,7 +21,12 @@ export interface Product {
   img?: string;
 }
 
-export interface StylesProps{
+export interface StylesProps {
   style?: CSSProperties;
   className?: string;
+}
+
+export interface onChangeArgs{
+  product: Product;
+  quantity: number;
 }
