@@ -4,12 +4,11 @@ import {
   ProductImage,
   ProductTitle,
 } from "../components";
-import { useShoppingCard } from "../hook/useShoppingCard";
 import { products } from "../data/products";
 import "../styles/custom-style.css";
 
 export const ShoppingPage = () => {
-  const [shoppingCart, onProductCountChange] = useShoppingCard();
+  const product = products[0];
 
   return (
     <div>
@@ -22,37 +21,25 @@ export const ShoppingPage = () => {
           flexWrap: "wrap",
         }}
       >
-        {products.map((product) => (
-          <ProductCard
-            product={product}
-            key={product.id}
-            value={shoppingCart[product.id]?.quantity || 0}
-            onChange={onProductCountChange}
-          >
-            <ProductImage />
-            <ProductTitle />
-            <ProductButtons />
-          </ProductCard>
-        ))}
-        <div className="shopping-cart">
-          {Object.entries(shoppingCart).map(([key, product]) => (
-            <ProductCard
-              key={key}
-              style={{ width: "100px" }}
-              onChange={onProductCountChange}
-              value={product.quantity}
-              product={product}
-            >
+        <ProductCard
+          initialValues={{
+            quantity: 4,
+            maxCount: 10,
+          }}
+          product={product}
+        >
+          {({ reset, handleChange, isMaxCountReached, count }) => (
+            <>
               <ProductImage />
-              <ProductButtons
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              />
-            </ProductCard>
-          ))}
-        </div>
+              <ProductTitle />
+              <ProductButtons />
+              <button onClick={reset}>reset</button>
+              <button onClick={() => handleChange(-2)}>-2</button>
+              {!isMaxCountReached && <button onClick={() => handleChange(2)}>+2</button>}
+              <span>{count}</span>
+            </>
+          )}
+        </ProductCard>
       </div>
     </div>
   );

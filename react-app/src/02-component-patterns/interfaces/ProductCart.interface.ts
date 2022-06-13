@@ -2,17 +2,24 @@ import { CSSProperties, ReactElement } from "react";
 
 export interface ProductCartProps {
   product: Product;
-  children?: ReactElement | ReactElement[];
+  children?: (args: ProductCardHandlers) => ReactElement;
   className?: string;
   style?: CSSProperties;
-  onChange?: (args:onChangeArgs) => void;
+  onChange?: (args: onChangeArgs) => void;
   value?: number;
+  initialValues?: InitialValuesProps;
+}
+
+export interface InitialValuesProps {
+  quantity?: number;
+  maxCount?: number;
 }
 
 export interface ProductContextProps {
   product: Product;
   counter: number;
   handleChange: (value?: number) => void;
+  maxCount?: number;
 }
 
 export interface Product {
@@ -26,7 +33,17 @@ export interface StylesProps {
   className?: string;
 }
 
-export interface onChangeArgs{
+export interface onChangeArgs {
   product: Product;
   quantity: number;
+}
+
+export interface ProductCardHandlers {
+  count: number;
+  isMaxCountReached?: boolean;
+  maxCount?: number;
+  product: Product;
+
+  handleChange: (value?: number) => void;
+  reset: () => void;
 }

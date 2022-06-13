@@ -61,3 +61,11 @@
     background-color: rgba(0, 0, 0, 0.1);
 }
 
+.disabled{
+    color: gray !important;
+    cursor: auto
+}
+
+.disabled:hover{
+    background-color: transparent !important;
+}
