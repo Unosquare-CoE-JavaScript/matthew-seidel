@@ -10,7 +10,7 @@ export const ProductContext = createContext({} as ProductContextProps);
 
 const { Provider } = ProductContext;
 
-export const ProductCard = ({ product, children }: ProductCartProps) => {
+export const ProductCard = ({ product, children, className, style }: ProductCartProps) => {
   const { counter, handleChange } = useProduct();
   return (
     <Provider
@@ -20,7 +20,7 @@ export const ProductCard = ({ product, children }: ProductCartProps) => {
         product,
       }}
     >
-      <div className={styles.productCard}>
+      <div className={`${styles.productCard} ${className}`} style={style} >
         {children}
         {/* <img src={noImage} alt="no img" /> */}
       </div>
