@@ -597,3 +597,96 @@ you're back in business!
     - commit often, prefect later publish once
 when working locally, commit whenever you make changes, this will help you to be a more productive developer
 - before pushing work to a shared repo you must rebase to clean up the commit history
+# distributed version control
+what's the differences between git and github?
+
+- Git is an open source version control software
+- Github has a repository hosting, browse code, issues, pull request and forks
+
+## what's remote?
+- a remote is a git repository stored elsewhere - on the web, github, etc.
+- origin is the default name git gives th the server you cloned from
+- cloning a remote repository from URL will fetch the whole repository, and make a local copy in your .git folder
+- you may have different privileges from a remote.
+    - read/write for som, read only for others
+
+## staying up to date
+while you work on your fork, other changes are getting merged into the source repository, in order to stay up to date, setup an upstream.
+
+## upstream
+the upstream repository is the base repository you create a fork from, this isn't set up by default, you need to set it manually but by adding an upstream remote, you can pull down changes that have been added to the original repository after you forked it.
+    
+``` bash   
+> git pull origin upstream <url>
+```
+
+## tracking branches
+Track a branch to tie it to an upstream branch.
+
+to checkout branch wit tracking you must use `git checkout -t origin/feature`
+
+tell git which branch to track the first time you push, `git push -u origin feature`
+
+## fetch
+is important for keeping your local repository up to date with a remote, it pulls down all the changes that happened on the server but it doesn't change your local repository.
+
+``` bash
+> git fetch origin
+```
+
+## pull
+pulling will pull down the changes from the remote repository to your local repository and merging them with a local branch. Under the hood `git pull = git fetch && git merge`. If changes happened upstream, git will create a merge commit. otherwise, it will fast-forward
+
+## push
+pushing sends your changes to the remote repository, git only allows you to push if your changes won't cause a conflict. if you want to see commits which haven't been pushed upstream yet, use `git cherry -v`
+
+## git pull --rebase
+will fetch, update your local branch to copy the upstream branch, then replay any commits you made via rebase. When you open a PF, there will be no unsightly merge commits.
+
+# Danger zone
+`git checkout -- file`
+if the file is present is the staging area, it'll be overwritten.
+`git reset --hard`
+will overwrite changes that are staged and in the work area
+
+unless changes are stashed, there's no way of getting them back if use `git stash --include-untracked` to include working area changes in your stash
+
+there many operation that can rewrite history. rebase, amend and reset, if your code is hosted or share, never run `git push -f`
+## how to recover lost work?
+use ORIG_HEAD, the commit HEAD was pointing to before a reset or merge. also you chan check for repository copies, on github or coworker.
+
+## orig_head to undo a merge
+you can use this command to undo a merge `git reset --merge ORIG_HEAD` or use --merge flag to preserve any uncommitted changes.
+
+you can use reflog and '@' syntax by default, git keeps commit around for about 2 weeks. If you need to go back in time, and find a commit that's no longer referenced, you can look in the reflog. The syntax of reflog is different. `HEAD@{2}` means `the value of HEAD 2 moves ago`
+``` bash
+> git reflog
+9619c96 (HEAD -> exercise7) HEAD@{0}: commit: commiting two new files
+a14e185 (exercise6, exercise5) HEAD@{1}: checkout: moving from exercise6 to exercise7
+a14e185 (exercise6, exercise5) HEAD@{2}: checkout: moving from exercise5 to exercise6
+a14e185 (exercise6, exercise5) HEAD@{3}: commit: [training/exersice5] creating a good commit
+```
+## navigate lik a pro en github
+press '?' on any github.com page for a list of shortcuts. Then, hit 'show all'
+
+### repositories
+[g][c] Go to code                   
+
+[g][i] got to issues                
+
+[g][p] go to pull request           
+
+[g][b] go to projects               
+
+[g][w] go to wiki                   
+
+### source code browsing
+[t] Active the file finder
+
+[l] Jump to line
+
+[w] Switch branch/tag
+
+[y] expand URL to its canonical form
+
+[i] show/hide all inline notes
