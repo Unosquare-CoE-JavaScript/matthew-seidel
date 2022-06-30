@@ -1,8 +1,13 @@
-function add (n1:number, n2:number): number {
-    return n1 + n2;
+function add (n1:number, n2:number, showResult: boolean, phrase:string): string | number {
+    const result = n1 + n2;
+    if(showResult) {
+        console.log(`${phrase} ${result}`);
+    } else return result;
 }
 
 const number1 = 10;
 const number2 = 20;
-const result = add(number1, number2);
-console.log(result);
+let printResults = false;
+const resultPhrase = 'Result is: ';
+
+const result = add(number1, number2, printResults, resultPhrase);
