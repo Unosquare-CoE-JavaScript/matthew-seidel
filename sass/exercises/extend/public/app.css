@@ -1,0 +1,30 @@
+body h1 {
+  color: #c69;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 2px 10px;
+  border-style: solid;
+  border-width: 1px;
+  line-height: 20px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.btn-primary:disabled, .btn-secondary:disabled {
+  cursor: auto;
+}
+
+.btn-primary:hover:not(:disabled), .btn-secondary:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.btn-primary {
+  background-color: #c69;
+  border-color: #cc6598;
+}
+
+.btn-secondary {
+  background-color: #edbcc8;
+  border-color: #edbbc7;
+}
