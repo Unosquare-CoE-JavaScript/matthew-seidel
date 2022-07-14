@@ -1,0 +1,10 @@
+ "use strict"
+
+const moviePlanets = function (movie) {
+    let url = "https://swapi.co/api/films/" + movie;
+    $.getJSON(url).then(function (data) {
+        console.log(data.title + " is made by " + data.director);
+    }).catch(function (error) {
+        console.log(error);
+    });
+}
