@@ -1,0 +1,37 @@
+@mixin theme($primary-color, $rotate: 120deg, $darkenpct: 20%) {
+  $other-color: adjust-hue($primary-color, $rotate);
+  $other-color2: adjust-hue($primary-color, $rotate * 2);
+  $secondary-color: adjust-hue($primary-color, -$rotate);
+
+  .btn-primary{
+    @include btn-base($primary-color, $darkenpct);
+  }
+  .btn-secondary{
+    @include btn-base($secondary-color, $darkenpct);
+  }
+  .btn-other{
+    @include btn-base($other-color, $darkenpct);
+  }
+  .btn-other2{
+    @include btn-base($other-color2, $darkenpct);
+  }
+}
+
+@mixin btn-base($color, $darken){
+    background-color: $color;
+    border-color: darken($color, $darken);
+    cursor: pointer;
+    transition: .4s ease-out;
+    &:hover:not(:disabled) {
+      background-color: lighten(saturate($color, $darken), $darken*0.3);
+      border-color: lighten($color, $darken*1.5);
+      //make bigger
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+        transform: scale(1.2);
+    }
+    &:disabled {
+      background-color: darken($color, $darken*2);
+      border-color: darken($color, $darken*1.5);
+      cursor: inherit;
+    }
+}
