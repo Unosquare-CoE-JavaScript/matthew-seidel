@@ -1,0 +1,54 @@
+body {
+    h1 {
+    color: #c69;
+  }
+}
+
+%btn{
+  padding: 2px 10px;
+  border-style: solid;
+  border-width: 1px;
+  line-height: 20px;
+  border-radius: 2px;
+  cursor: pointer;
+  &:disabled{
+    cursor:auto;
+    
+  }
+  &:hover:not(:disabled){
+   filter:brightness(.9);
+  }
+}
+
+.btn-primary{
+  @extend %btn;
+  background-color: #c69;
+  border-color: darken(saturate(#c69,.20), $amount: .20);
+}
+.btn-secondary{
+  @extend %btn;
+  background-color:#edbcc8;
+  border-color: darken(saturate(#edbcc8,.20), $amount: .20);
+
+}
+
+// .btn{
+//   &-primary{
+//     background-color: #c69;
+//     border-color: darken(#c69, 20%);
+    
+//     &:hover:not(:disabled){
+//       $hover-color: lighten(saturate(#c69, 20%), 10%);
+//       background-color: $hover-color;
+//     }
+//   }
+//   &-secondary{
+//     background-color:#edbcc8;
+//     border-color: darken(#edbcc8, 20%);
+    
+//     &:hover:not(:disabled){
+//       $hover-color: lighten(saturate(#c69, 20%), 10%);
+//       background-color: $hover-color;
+//     }
+//   }
+// }

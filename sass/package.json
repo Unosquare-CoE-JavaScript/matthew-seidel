@@ -1,0 +1,38 @@
+{
+  "name": "@mike-works/sass-fundamentals",
+  "version": "0.0.0-development",
+  "main": "index.js",
+  "description": "A sass workshop project",
+  "scripts": {
+    "test:ci": "echo ok",
+    "travis-deploy-once": "travis-deploy-once",
+    "semantic-release": "semantic-release"
+  },
+  "repository": "https://github.com/mike-works/sass-fundamentals.git",
+  "keywords": [
+    "sass",
+    "css"
+  ],
+  "author": "Mike North <michael.l.north@gmail.com> (https://mike.works)",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/mike-works/sass-fundamentals/issues"
+  },
+  "homepage": "https://github.com/mike-works/sass-fundamentals#readme",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^9.3.0",
+    "express": "^4.18.1",
+    "livereload": "0.9.3"
+  },
+  "release": {
+    "extends": "@mike-works/workshop-semantic-release-config"
+  },
+  "devDependencies": {
+    "@mike-works/js-lib-renovate-config": "^2.0.0",
+    "@mike-works/workshop-semantic-release-config": "^1.0.0",
+    "node-sass-middleware": "^1.0.1",
+    "semantic-release": "^15.14.0",
+    "travis-deploy-once": "^5.0.11"
+  }
+}
