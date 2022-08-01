@@ -1,0 +1,19 @@
+  type Author {
+    id: Int!
+    firstName: String
+    lastName: String
+    """
+    the list of Posts by this author
+    """
+    posts: [Post]
+  }
+
+  # the schema allows the following query:
+  type Query {
+    authors(id: Int!): Author
+  }
+
+  # this schema allows the following mutation:
+  type Mutation {
+    upvotePost(postId: Int!): Post
+  }
