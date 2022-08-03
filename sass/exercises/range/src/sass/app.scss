@@ -1,0 +1,37 @@
+@import '_variables';
+@import '_mixins';
+
+
+
+body {
+  display: grid;
+  place-content: center;
+  margin: 0;
+  height: 100vh;
+  background: radial-gradient(#dfddd0, #ada888)
+}
+
+input[type='range'] {
+  &::-webkit-slider-runnable-track, 
+  &::-webkit-slider-thumb, & { -webkit-appearance: none }
+  
+  padding: 0 .5*$thumb-d;
+  width: 4*$track-w; height: 2*$thumb-d;
+  border-radius: 3.125em;
+  background: #474745 
+    url(https://i.stack.imgur.com/PEnJm.png);
+  background-blend-mode: multiply;
+  font-size: 1em;
+  cursor: pointer;
+
+  &::-webkit-slider-runnable-track { @include track }
+  &::-moz-range-track { @include track }
+
+  &::-webkit-slider-thumb { @include thumb(1) }
+  &::-moz-range-thumb { @include thumb }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 .25em .125em olive
+  }
+}

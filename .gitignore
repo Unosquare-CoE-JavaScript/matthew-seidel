@@ -1,5 +1,4 @@
 .DS_Store
-1.6\ Typescript/basic/node_modules
-1.6\ Typescript/advanced-types/node_modules
-1.6\ Typescript/decorators/node_modules
-1.6\ Typescript/Drag&Drop/node_modules
+
+**/node_modules
+

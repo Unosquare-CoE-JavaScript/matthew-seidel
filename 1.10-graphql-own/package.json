@@ -1,0 +1,31 @@
+{
+  "name": "1.10-graphql-own",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "json-server": "json-server --watch db.json --port 3001",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "@apollo/subgraph": "^2.0.5",
+    "@graphql-tools/load-files": "6.6.0",
+    "@graphql-tools/merge": "8.3.1",
+    "@graphql-tools/schema": "^8.5.1",
+    "@graphql-tools/wrap": "^8.5.1",
+    "apollo-server": "^3.10.0",
+    "axios": "^0.27.2",
+    "graphql": "^16.5.0",
+    "json-server": "^0.17.0",
+    "path": "^0.12.7",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
+}

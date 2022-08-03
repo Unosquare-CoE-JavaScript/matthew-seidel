@@ -1,0 +1,13 @@
+$sides: ("t":"top", "b":"bottom", "l":"left", "r":"right");
+$dimensions: ("m":"margin", "p":"padding");
+
+@each $dim in $dimensions{
+    @for $i from 1 through 5{
+        @each $side in $sides{
+        $size: $i * 5;
+        .#{nth($dim,1)}-#{nth($side,1)}-#{$size}{
+                #{nth($dim,2)}-#{nth($side,2)}: #{$size}px;
+            }
+        }
+    }
+}
